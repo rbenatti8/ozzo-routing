@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/go-ozzo/ozzo-routing/v2"
+	"github.com/rbenatti8/ozzo-routing/v2"
 )
 
 // PanicHandler returns a handler that recovers from panics happened in the handlers following this one.
@@ -14,15 +14,15 @@ import (
 // A log function can be provided to log the panic call stack information. If the log function is nil,
 // no message will be logged.
 //
-//     import (
-//         "log"
-//         "github.com/go-ozzo/ozzo-routing/v2"
-//         "github.com/go-ozzo/ozzo-routing/v2/fault"
-//     )
+//	import (
+//	    "log"
+//	    "github.com/rbenatti8/ozzo-routing/v2"
+//	    "github.com/rbenatti8/ozzo-routing/v2/fault"
+//	)
 //
-//     r := routing.New()
-//     r.Use(fault.ErrorHandler(log.Printf))
-//     r.Use(fault.PanicHandler(log.Printf))
+//	r := routing.New()
+//	r.Use(fault.ErrorHandler(log.Printf))
+//	r.Use(fault.PanicHandler(log.Printf))
 func PanicHandler(logf LogFunc) routing.Handler {
 	return func(c *routing.Context) (err error) {
 		defer func() {
@@ -50,7 +50,7 @@ func getCallStack(skip int) string {
 		if !ok {
 			break
 		}
-		fmt.Fprintf(buf, "\n%s:%d", file, line)
+		_, _ = fmt.Fprintf(buf, "\n%s:%d", file, line)
 	}
 	return buf.String()
 }

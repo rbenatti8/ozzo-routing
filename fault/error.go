@@ -6,9 +6,9 @@
 package fault
 
 import (
+	"errors"
+	"github.com/rbenatti8/ozzo-routing/v2"
 	"net/http"
-
-	"github.com/go-ozzo/ozzo-routing/v2"
 )
 
 // ErrorHandler returns a handler that handles errors returned by the handlers following this one.
@@ -21,15 +21,15 @@ import (
 // An optional error conversion function can also be provided to convert an error into a normalized one
 // before sending it to the response.
 //
-//     import (
-//         "log"
-//         "github.com/go-ozzo/ozzo-routing/v2"
-//         "github.com/go-ozzo/ozzo-routing/v2/fault"
-//     )
+//	import (
+//	    "log"
+//	    "github.com/rbenatti8/ozzo-routing/v2"
+//	    "github.com/rbenatti8/ozzo-routing/v2/fault"
+//	)
 //
-//     r := routing.New()
-//     r.Use(fault.ErrorHandler(log.Printf))
-//     r.Use(fault.PanicHandler(log.Printf))
+//	r := routing.New()
+//	r.Use(fault.ErrorHandler(log.Printf))
+//	r.Use(fault.PanicHandler(log.Printf))
 func ErrorHandler(logf LogFunc, errorf ...ConvertErrorFunc) routing.Handler {
 	return func(c *routing.Context) error {
 		err := c.Next()
@@ -56,10 +56,11 @@ func ErrorHandler(logf LogFunc, errorf ...ConvertErrorFunc) routing.Handler {
 // If the error implements HTTPError, it will set the HTTP status as the result of the StatusCode() call of the error.
 // Otherwise, the HTTP status will be set as http.StatusInternalServerError.
 func writeError(c *routing.Context, err error) {
-	if httpError, ok := err.(routing.HTTPError); ok {
+	var httpError routing.HTTPError
+	if errors.As(err, &httpError) {
 		c.Response.WriteHeader(httpError.StatusCode())
 	} else {
 		c.Response.WriteHeader(http.StatusInternalServerError)
 	}
-	c.Write(err)
+	_ = c.Write(err)
 }

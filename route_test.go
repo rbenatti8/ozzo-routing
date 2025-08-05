@@ -70,8 +70,8 @@ func TestRouteURL(t *testing.T) {
 
 func newHandler(tag string, buf *bytes.Buffer) Handler {
 	return func(*Context) error {
-		fmt.Fprintf(buf, tag)
-		return nil
+		_, err := buf.WriteString(tag)
+		return err
 	}
 }
 

@@ -5,10 +5,9 @@
 package content
 
 import (
+	routing "github.com/rbenatti8/ozzo-routing/v2"
+	"golang.org/x/text/language"
 	"net/http"
-
-	"github.com/go-ozzo/ozzo-routing/v2"
-	"github.com/golang/gddo/httputil/header"
 )
 
 // Language is the key used to store and retrieve the chosen language in routing.Context
@@ -22,9 +21,9 @@ const Language = "Language"
 //
 // In a handler, you can access the chosen language through routing.Context like the following:
 //
-//     func(c *routing.Context) error {
-//         language := c.Get(content.Language).(string)
-//     }
+//	func(c *routing.Context) error {
+//	    language := c.Get(content.Language).(string)
+//	}
 //
 // If you do not specify languages, the negotiator will set the language to be "en-US".
 func LanguageNegotiator(languages ...string) routing.Handler {
@@ -34,27 +33,39 @@ func LanguageNegotiator(languages ...string) routing.Handler {
 	defaultLanguage := languages[0]
 
 	return func(c *routing.Context) error {
-		language := negotiateLanguage(c.Request, languages, defaultLanguage)
-		c.Set(Language, language)
+		l := negotiateLanguage(c.Request, languages, defaultLanguage)
+		c.Set(Language, l)
 		return nil
 	}
 }
 
 // negotiateLanguage negotiates the acceptable language according to the Accept-Language HTTP header.
 func negotiateLanguage(r *http.Request, offers []string, defaultOffer string) string {
+	accept := r.Header.Get("Accept-Language")
+
+	// Parse the Accept-Language header
+	tags, qs, err := language.ParseAcceptLanguage(accept)
+	if err != nil || len(tags) == 0 {
+		return defaultOffer
+	}
+
 	bestOffer := defaultOffer
-	bestQ := -1.0
-	specs := header.ParseAccept(r.Header, "Accept-Language")
+	bestQ := float32(-1.0)
+
 	for _, offer := range offers {
-		for _, spec := range specs {
-			if spec.Q > bestQ && (spec.Value == "*" || spec.Value == offer) {
-				bestQ = spec.Q
+		offerTag := language.Make(offer)
+
+		for i, tag := range tags {
+			if tag == offerTag && qs[i] > bestQ {
+				bestQ = qs[i]
 				bestOffer = offer
 			}
 		}
 	}
+
 	if bestQ == 0 {
-		bestOffer = defaultOffer
+		return defaultOffer
 	}
+
 	return bestOffer
 }

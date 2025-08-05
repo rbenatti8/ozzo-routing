@@ -1,10 +1,16 @@
-module github.com/go-ozzo/ozzo-routing/v2
+module github.com/rbenatti8/ozzo-routing/v2
 
-go 1.13
+go 1.24.0
 
 require (
-	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/golang/gddo v0.0.0-20190904175337-72a348e765d2
-	github.com/google/go-cmp v0.3.1 // indirect
-	github.com/stretchr/testify v1.4.0
+	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/stretchr/testify v1.10.0
+	golang.org/x/text v0.27.0
+)
+
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/golang/gddo v0.0.0-20190904175337-72a348e765d2 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
